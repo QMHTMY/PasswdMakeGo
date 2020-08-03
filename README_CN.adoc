@@ -1,0 +1,47 @@
+# PasswdMake
+:experimental:
+:author: 'Shieber'
+:date: '2020.07.31'
+
+### [link:README.adoc[English]] 输入各种账号的seed以生成密码，seed可以是账户种类加姓名或数字等。
+
+NOTE: 此为Go语言版，还有一个Python版。Python版文件放到系统内，但能被打开，不安全，用go编译成可执行文件放到系统就不用考虑被破解。
+
+### 用法1
+
+[source, shell]
+.bash
+----
+    $ go run PasswdMake.go seed
+    $ go run PasswdMake.go alipayxjp #账号为支付宝，xjp为缩写
+    $ go run PasswdMake.go wechatxjp
+    $ go run PasswdMake.go zhihuxjp
+    $ go run PasswdMake.go weiboxjp
+----
+
+### 用法2 [添加 PasswdMake.go 到/usr/local/bin]
+
+[source, shell]
+.bash
+-----
+    $ go build PasswdMake.go
+    $ chmod +x PasswdMake
+    $ sudo mv PasswdMake /usr/local/bin
+    $ PasswdMake seed  #命令行直接生成密码，省去用法1中冗长语法
+-----
+
+### 两种用法示例，左侧为输入的seed，右侧为密码，可见，密码非常丰富，极难重复
+
+image::./passwdmake.png[passwordmk.png]
+
+image::./passwdmakeshell.png[passwordmsh.png]
+
+这么长和复杂的密码如何保存？使用pass工具，安装如下。用pass保存PasswdMake生成的密码，以后要用时，再用pass输出密码，用pass -c account 还可保存密码到剪切板以直接粘贴到登录框。
+
+[source, shell]
+.bash
+-----
+    $ sudo apt install pass
+-----
+
+image::./savepasswd.gif[savepasswd]
