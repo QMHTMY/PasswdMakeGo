@@ -10,8 +10,26 @@ import (
 	"strings"
 )
 
+// 密码字符串
 var secretstr = "!pqr$*+STU%Vstuv:w'{WX&YZ-Q_r$*/02.3(4Al<BCo|xy8X&YjDE^FG?IH[]JK>LM#N6mnz}OP);Ra@bce7d=9fg5hi,k1mnz}"
 
+// 控制密码生成
+var ctrlkey = map[string]int{
+	"minseedLen": 4,
+	"trunctLen":  2,
+	"minpswdLen": 6,
+	"maxpswdLen": 20,
+}
+
+// 控制密码长度
+var length = map[string]int{
+	"6": 1, "7": 1, "8": 1, "9": 1, "10": 1,
+	"11": 2, "12": 2, "13": 2, "14": 2, "15": 2,
+	"16": 3, "17": 3, "18": 3, "19": 3, "20": 3,
+}
+
+
+// 用梅森素数求哈希
 func HashMn(seed string) float64 {
 	hashvalue := 0
 	for i, c := range []rune(seed) {
@@ -26,6 +44,7 @@ func HashMn(seed string) float64 {
 	return res
 }
 
+// 字符串翻转
 func stringReverse(str string) string {
 	bytes := []byte(str)
 
@@ -38,19 +57,8 @@ func stringReverse(str string) string {
 	return string(bytes)
 }
 
+// 密码生成
 func HashPassword(seed string, bit int) string {
-	ctrlkey := map[string]int{
-		"minseedLen": 4,
-		"trunctLen":  2,
-		"minpswdLen": 6,
-		"maxpswdLen": 20,
-	}
-	length := map[string]int{
-		"6": 1, "7": 1, "8": 1, "9": 1, "10": 1,
-		"11": 2, "12": 2, "13": 2, "14": 2, "15": 2,
-		"16": 3, "17": 3, "18": 3, "19": 3, "20": 3,
-	}
-
 	if len(seed) < ctrlkey["minseedLen"] {
 		fmt.Printf("seed = %s must have length >= 4\n", seed)
 		os.Exit(1)
