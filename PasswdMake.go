@@ -10,68 +10,76 @@ import (
 	"strings"
 )
 
-// 密码字符串
-var secretstr = "!pqr$*+STU%Vstuv:w'{WX&YZ-Q_r$*/02.3(4Al<BCo|xy8X&YjDE^FG?IH[]JK>LM#N6mnz}OP);Ra@bce7d=9fg5hi,k1mnz}"
+// 密码字符串映射表，可随意打乱次序和删减
+var secretStr = "!pqr$*+STU%Vstuv:w'{WX&YZ-Q_r$*/02.3(4Al<BCo|xy8X&YjDE^FG?IH[]JK>LM#N6mnz}OP);Ra@bce7d=9fg5hi,k1mnz}"
 
 // 控制密码生成
-var ctrlkey = map[string]int{
-	"minseedLen": 4,
+var ctrlKey = map[string]int{
 	"trunctLen":  2,
+	"minseedLen": 4,
 	"minpswdLen": 6,
 	"maxpswdLen": 20,
 }
 
 // 控制密码长度
-var length = map[string]int{
-	"6": 1, "7": 1, "8": 1, "9": 1, "10": 1,
-	"11": 2, "12": 2, "13": 2, "14": 2, "15": 2,
-	"16": 3, "17": 3, "18": 3, "19": 3, "20": 3,
+var passLength = map[string]int{
+	"6": 1,
+    "7": 1,
+    "8": 1,
+    "9": 1,
+    "10": 1,
+	"11": 2,
+    "12": 2,
+    "13": 2,
+    "14": 2,
+    "15": 2,
+	"16": 3,
+    "17": 3,
+    "18": 3,
+    "19": 3,
+    "20": 3,
 }
 
-
-// 用梅森素数求哈希
+// 用梅森素数[3,7,31,127,8191,131071,524287]求哈希
 func HashMn(seed string) float64 {
 	hashvalue := 0
-	for i, c := range []rune(seed) {
+	for i, c := range []byte(seed) {
 		hashvalue += (i + 1) * int(c)
 	}
 
-	res := math.Pow(float64(hashvalue%127), float64(3)) - 1
+	res := math.Pow(float64(hashvalue % 127), 3) - 1
 	if res == 0 {
-		res = float64(8191*2) + float64(hashvalue)
+		res = float64(hashvalue) + float64(2 * 8191)
 	}
 
 	return res
 }
 
 // 字符串翻转
-func stringReverse(str string) string {
+func reverseString(str string) string {
 	bytes := []byte(str)
-
-	for i := 0; i < len(bytes)/2; i++ {
-		tmp := bytes[len(bytes)-i-1]
-		bytes[len(bytes)-i-1] = bytes[i]
-		bytes[i] = tmp
+    byteLen := len(bytes)
+	for i := 0; i < byteLen/2; i++ {
+		bytes[byteLen-i-1], bytes[i] = bytes[i], bytes[byteLen-i-1]
 	}
-
 	return string(bytes)
 }
 
 // 密码生成
 func HashPassword(seed string, bit int) string {
-	if len(seed) < ctrlkey["minseedLen"] {
+	if len(seed) < ctrlKey["minseedLen"] {
 		fmt.Printf("seed = %s must have length >= 4\n", seed)
 		os.Exit(1)
 	}
-
-	if !(ctrlkey["maxpswdLen"] >= bit && bit >= ctrlkey["minpswdLen"]) {
-		fmt.Println("password length must in 6-20")
+	if ! (ctrlKey["maxpswdLen"] >= bit && bit >= ctrlKey["minpswdLen"]) {
+		fmt.Println("password length must between 6 and 20")
 		os.Exit(1)
 	}
 
 	hashvalue := HashMn(seed)
-	hashstr := strconv.Itoa(int(math.Pow(hashvalue, float64(length[strconv.Itoa(bit)]))))
-	if len(hashstr)%2 != 0 {
+    order := float64(passLength[strconv.Itoa(bit)])
+	hashstr := strconv.Itoa(int(math.Pow(hashvalue, order)))
+	if len(hashstr) % 2 == 1 {
 		hashstr = hashstr[:len(hashstr)-1]
 	}
 
@@ -80,34 +88,29 @@ func HashPassword(seed string, bit int) string {
 		if len(hashstr) == 0 {
 			break
 		}
-
-		pos, _ := strconv.Atoi(hashstr[:ctrlkey["trunctLen"]])
-
-		if pos >= len(secretstr) {
-			pos = pos % len(secretstr)
+		pos, _ := strconv.Atoi(hashstr[:ctrlKey["trunctLen"]])
+		if pos >= len(secretStr) {
+			pos = pos % len(secretStr)
 		}
-
-		passwd += string(secretstr[pos])
-		hashstr = hashstr[ctrlkey["trunctLen"]:]
+		passwd += string(secretStr[pos])
+		hashstr = hashstr[ctrlKey["trunctLen"]:]
 	}
-
 	passwd = strings.Join([]string{passwd}, seed)
 	passwd = base64.StdEncoding.EncodeToString([]byte(passwd))
-	passwd = strings.Replace(passwd, "+", "*", -1)
+	passwd = strings.Replace(passwd, "+", "_", -1)
 	passwd = strings.Replace(passwd, "/", "#", -1)
 	passwd = strings.Replace(passwd, "=", "*", -1)
-
 	for {
 		if len(passwd) >= bit {
 			break
 		}
-		passwd += stringReverse(passwd)
+		passwd += reverseString(passwd)
 	}
-
 	passwd = seed + ": " + passwd[:bit]
 
 	return passwd
 }
+
 
 func main() {
 	var seed string
@@ -128,5 +131,6 @@ func main() {
 	}
 
 	seed = os.Args[1]
-	fmt.Println(HashPassword(seed, length))
+    passwd := HashPassword(seed, length)
+	fmt.Println(passwd)
 }
