@@ -29,37 +29,39 @@ var passLength = map[string]int{
 }
 
 // 用梅森素数[3,7,31,127,8191,131071,524287]求哈希
-func HashMn(seed string) float64 {
+func HashMn(seed string) (res float64) {
 	hashvalue := 0
 	for i, c := range []byte(seed) {
 		hashvalue += (i + 1) * int(c)
 	}
 
-	res := math.Pow(float64(hashvalue % 127), 3) - 1
+	res = math.Pow(float64(hashvalue % 127), 3) - 1
 	if res == 0 {
 		res = float64(hashvalue) + float64(2 * 8191)
 	}
 
-	return res
+	return
 }
 
 // 字符串翻转
-func reverseString(str string) string {
+func reverseString(str string) (revertStr string) {
 	bytes := []byte(str)
     byteLen := len(bytes)
 	for i := 0; i < byteLen/2; i++ {
 		bytes[byteLen-i-1], bytes[i] = bytes[i], bytes[byteLen-i-1]
 	}
-	return string(bytes)
+    revertStr = string(bytes)
+
+	return
 }
 
 // 字符串道字符数组
-func str2array(str string) []string {
-    array := []string{}
+func str2array(str string) (array []string) {
+    //array := []string{}
     for _, s := range str {
         array = append(array, string(s))
     }
-    return array
+    return
 }
 
 // 参数检查
@@ -75,7 +77,7 @@ func checkParams(seed string, bit int) {
 }
 
 // 密码生成
-func MakePassword(seed string, bit int) string {
+func MakePassword(seed string, bit int) (passwd string) {
     checkParams(seed, bit)
 
 	hashvalue := HashMn(seed)
@@ -85,7 +87,7 @@ func MakePassword(seed string, bit int) string {
 		hashstr = hashstr[:len(hashstr)-1]
 	}
 
-	passwd := ""
+	//passwd := ""
 	for {
 		if hashstr == "" {
 			break
@@ -107,12 +109,12 @@ func MakePassword(seed string, bit int) string {
 	}
 	passwd = seed + ": " + passwd[:bit]
 
-	return passwd
+	return
 }
 
-func getSeedPassLen() (string, int) {
-    var seed string
-	var length int
+func getSeedPassLen() (seed string, length int) {
+    //var seed string
+	//var length int
 
     seed = os.Args[1]
 
@@ -130,7 +132,7 @@ func getSeedPassLen() (string, int) {
 		os.Exit(1)
 	}
 
-    return seed, length
+    return
 }
 
 func main() {
