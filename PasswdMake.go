@@ -15,7 +15,6 @@ var secretStr = "!prq*$+ST%UVstuv:w{W&XYZ-/_013.42<ABo|CxyDE^F?HIG[/]JK>LMN#OP;Q
 
 // 控制密码生成
 var ctrlKey = map[string]int{
-	"trunctLen":  2,
 	"minseedLen": 4,
 	"minpswdLen": 6,
 	"maxpswdLen": 20,
@@ -30,14 +29,14 @@ var passLength = map[string]int{
 
 // 用梅森素数[3,7,31,127,8191,131071,524287]求哈希
 func HashMn(seed string) (res float64) {
-	hashvalue := 0
+	hashval := 0
 	for i, c := range []byte(seed) {
-		hashvalue += (i + 1) * int(c)
+		hashval += (i + 1) * int(c)
 	}
 
-	res = math.Pow(float64(hashvalue % 127), 3) - 1
+	res = math.Pow(float64(hashval % 127), 3) - 1
 	if res == 0 {
-		res = float64(hashvalue) + float64(2 * 8191)
+		res = float64(hashval) + float64(2 * 8191)
 	}
 
 	return
@@ -80,25 +79,25 @@ func checkParams(seed string, bit int) {
 func MakePassword(seed string, bit int) (passwd string) {
     checkParams(seed, bit)
 
-	hashvalue := HashMn(seed)
+	hashval := HashMn(seed)
     order := float64(passLength[strconv.Itoa(bit)])
-	hashstr := strconv.Itoa(int(math.Pow(hashvalue, order)))
+	hashstr := strconv.Itoa(int(math.Pow(hashval, order)))
 	if len(hashstr) % 2 != 0 {
 		hashstr = hashstr[:len(hashstr)-1]
 	}
 
-	//passwd := ""
 	for {
 		if hashstr == "" {
 			break
 		}
-		pos, _ := strconv.Atoi(hashstr[:ctrlKey["trunctLen"]])
+		pos, _ := strconv.Atoi(hashstr[:2])
 		if pos >= len(secretStr) {
 			pos = pos % len(secretStr)
 		}
 		passwd += string(secretStr[pos])
-		hashstr = hashstr[ctrlKey["trunctLen"]:]
+		hashstr = hashstr[2:]
 	}
+
 	passwd = strings.Join(str2array(seed), passwd)
 	passwd = base64.StdEncoding.EncodeToString([]byte(passwd))
 	for {
@@ -113,11 +112,6 @@ func MakePassword(seed string, bit int) (passwd string) {
 }
 
 func getSeedPassLen() (seed string, length int) {
-    //var seed string
-	//var length int
-
-    seed = os.Args[1]
-
 	if len(os.Args) == 3 {
 		leng, err := strconv.Atoi(os.Args[2])
 		if err != nil {
@@ -131,6 +125,8 @@ func getSeedPassLen() (seed string, length int) {
 		fmt.Printf("Usage: %s seed [length]\n", path.Base(os.Args[0]))
 		os.Exit(1)
 	}
+
+    seed = os.Args[1]
 
     return
 }
