@@ -3,6 +3,8 @@
 :author: 'Shieber'
 :date: '2020.07.31'
 
+### !!! 废弃仓库，请使用 https://gitee.com/QMHTMY/PasswdMakeRust[PasswdMakeRust]
+
 ### [link:README.adoc[English]] 输入各种账号的seed以生成密码，seed可以是账户种类加姓名或数字等。
 
 此为Go语言版，还有一个Python版。Python版文件放到系统内，但能被打开，不安全，用go编译成可执行文件放到系统就不用考虑安全问题。
